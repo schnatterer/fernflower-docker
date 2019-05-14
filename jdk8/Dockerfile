@@ -1,10 +1,10 @@
-FROM adoptopenjdk/openjdk8:alpine as build
+FROM adoptopenjdk/openjdk8 as build
 COPY . /app
 WORKDIR /app
 RUN chmod +x gradlew
 RUN ./gradlew jar
 
-FROM adoptopenjdk/openjdk8:alpine-jre
+FROM adoptopenjdk/openjdk8:jre
 COPY --from=build /app/build/libs/fernflower.jar /app/fernflower.jar
 ENTRYPOINT ["java", "-jar", "/app/fernflower.jar"]
 

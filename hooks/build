@@ -8,16 +8,31 @@ function main() {
 
     init
 
-    build 'graalvm-19-native'
-    tag 'graalvm-19-native' 'latest'
-    tag 'graalvm-19-native' 'native'
-    tag 'graalvm-19-native' "${GIT_SHA1_SHORT}"
+    build 'native-graalvm19'
+    tag 'native-graalvm19' 'latest'
+    tag 'native-graalvm19' 'native'
+    tag 'native-graalvm19' "native-${GIT_SHA1_SHORT}"
+    tag 'native-graalvm19' "${GIT_SHA1_SHORT}"
 
-    build 'jdk8-alpine-jre'
-    tag 'jdk8-alpine-jre' 'alpine-jre'
-    tag 'jdk8-alpine-jre' "${GIT_SHA1_SHORT}-alpine-jre"
+    build 'jdk8'
+    tag 'jdk8' 'jdk8'
+    tag 'jdk8' 'jre'
+    tag 'jdk8' "jre-${GIT_SHA1_SHORT}"
 
-    rm -rf fernflower
+    createJdkDockerfileWithDifferentImage '../alpine-jre-jdk8' 'adoptopenjdk\/openjdk8:alpine-jre'
+    build 'alpine-jre-jdk8'
+    tag 'alpine-jre-jdk8' 'alpine-jre-jdk8'
+    tag 'alpine-jre-jdk8' 'alpine-jre'
+    tag 'alpine-jre-jdk8' "alpine-jre-${GIT_SHA1_SHORT}"
+
+    createJdkDockerfileWithDifferentImage '../distroless-jdk8' 'gcr.io\/distroless\/java:8'
+    build 'distroless-jdk8'
+    tag 'distroless-jdk8' 'distroless-jdk8'
+    tag 'distroless-jdk8' 'distroless'
+    tag 'distroless-jdk8' "distroless-${GIT_SHA1_SHORT}"
+
+    cd ..
+    git clean -fd
 }
 
 function init() {
@@ -36,6 +51,13 @@ function init() {
     fi
 
     cd fernflower
+}
+
+function createJdkDockerfileWithDifferentImage() {
+    local FOLDER="$1"
+    local IMAGE="$2"
+    cp -r ../jdk8 ${FOLDER}
+    sed -i "s/adoptopenjdk\/openjdk8:jre/${IMAGE}/" ${FOLDER}/Dockerfile
 }
 
 function build() {
