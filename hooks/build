@@ -4,29 +4,53 @@ set -ex
 # Don't use docker cloud build's IMAGE_NAME, because it already contains the tag latest.
 IMAGE_NAME=schnatterer/fernflower
 
-git clean -fd
-git clone https://github.com/fesh0r/fernflower
+function main() {
 
-GIT_SHA1=$(cd fernflower && git rev-parse HEAD)
-GIT_SHA1_SHORT=$(cd fernflower && git rev-parse --short HEAD)
+    init
 
-GIT_TAG=GIT_SHA1
-POTENTIAL_TAG=$(git name-rev --name-only --tags HEAD)
-if [ "${POTENTIAL_TAG}" != "undefined" ]; then
-    GIT_TAG="${POTENTIAL_TAG}"
-fi
+    build 'graalvm-19-native'
 
-mv -f fernflower/* .
-rm -rf fernflower
+    tag 'graalvm-19-native' 'latest'
+    tag 'graalvm-19-native' "${GIT_SHA1_SHORT}"
 
-docker image build \
-    --build-arg VCS_REF="${GIT_SHA1}" \
-    --build-arg SOURCE_REPOSITORY_URL="${SOURCE_REPOSITORY_URL}" \
-    --build-arg GIT_TAG="${GIT_TAG}" \
-    --build-arg BUILD_DATE="$(date --rfc-3339 ns)" \
-    --tag ${IMAGE_NAME} \
-    .
+    rm -rf fernflower
+}
 
-docker tag ${IMAGE_NAME} ${IMAGE_NAME}:${GIT_SHA1_SHORT}
+function init() {
+    rm -rf fernflower
 
-git clean -fd
+    git clean -fd
+    git clone https://github.com/fesh0r/fernflower
+
+    GIT_SHA1=$(cd fernflower && git rev-parse HEAD)
+    GIT_SHA1_SHORT=$(cd fernflower && git rev-parse --short HEAD)
+
+    GIT_TAG=GIT_SHA1
+    POTENTIAL_TAG=$(git name-rev --name-only --tags HEAD)
+    if [ "${POTENTIAL_TAG}" != "undefined" ]; then
+        GIT_TAG="${POTENTIAL_TAG}"
+    fi
+
+    cd fernflower
+}
+
+function build() {
+    local TAG="$1"
+
+    cp -f ../${TAG}/Dockerfile .
+    docker image build \
+        --build-arg VCS_REF="${GIT_SHA1}" \
+        --build-arg SOURCE_REPOSITORY_URL="${SOURCE_REPOSITORY_URL}" \
+        --build-arg GIT_TAG="${GIT_TAG}" \
+        --build-arg BUILD_DATE="$(date --rfc-3339 ns)" \
+        --tag ${IMAGE_NAME}:${TAG}-${GIT_SHA1_SHORT} \
+        .
+}
+
+function tag() {
+   local SRC="$1"
+   local TARGET="$2"
+   docker tag ${IMAGE_NAME}:${SRC}-${GIT_SHA1_SHORT} ${IMAGE_NAME}:${TARGET}
+}
+
+main "$@"
