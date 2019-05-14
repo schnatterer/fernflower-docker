@@ -1,7 +1,13 @@
 
 script:
+ - chmod +x hooks/build
+ - chmod +x test/smoketest.sh
+
+# Simple smoke test for all images before triggering docker hub
+# We could as well push our images from here to DockerHub?!
+ - SKIP_PUSH=true hooks/build
+ - test/smoketest.sh schnatterer/fernflower:native
+ - test/smoketest.sh schnatterer/fernflower:jre
+ - test/smoketest.sh schnatterer/fernflower:alpine-jre
+ - test/smoketest.sh schnatterer/fernflower:distroless
  - curl -X POST ${DOCKER_HUB_TRIGGER_URL}
-# TODO add a small functional test for all images before triggering docker hub?
-# Build images locally before? Or use latest versions from docker hub?
-# If build, why not push them from here?
-# `SKIP_PUSH=true hooks/build`
