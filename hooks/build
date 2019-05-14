@@ -1,0 +1,29 @@
+#!/bin/bash
+set -ex
+
+git clean -fd
+git clone https://github.com/fesh0r/fernflower
+
+GIT_SHA1=$(cd fernflower && git rev-parse HEAD)
+GIT_SHA1_SHORT=$(cd fernflower && git rev-parse --short HEAD)
+
+GIT_TAG=GIT_SHA1
+POTENTIAL_TAG=$(git name-rev --name-only --tags HEAD)
+if [ "${POTENTIAL_TAG}" != "undefined" ]; then
+    GIT_TAG="${POTENTIAL_TAG}"
+fi
+
+mv -f fernflower/* .
+rm -rf fernflower
+
+docker image build \
+    --build-arg VCS_REF="${GIT_SHA1}" \
+    --build-arg SOURCE_REPOSITORY_URL="${SOURCE_REPOSITORY_URL}" \
+    --build-arg GIT_TAG="${GIT_TAG}" \
+    --build-arg BUILD_DATE="$(date --rfc-3339 ns)" \
+    --tag ${IMAGE_NAME} \
+    .
+
+docker tag ${IMAGE_NAME} ${IMAGE_NAME}:${GIT_SHA1_SHORT}
+
+git clean -fd
