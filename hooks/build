@@ -9,9 +9,13 @@ function main() {
     init
 
     build 'graalvm-19-native'
-
     tag 'graalvm-19-native' 'latest'
+    tag 'graalvm-19-native' 'native'
     tag 'graalvm-19-native' "${GIT_SHA1_SHORT}"
+
+    build 'jdk8-alpine-jre'
+    tag 'jdk8-alpine-jre' 'alpine-jre'
+    tag 'jdk8-alpine-jre' "${GIT_SHA1_SHORT}-alpine-jre"
 
     rm -rf fernflower
 }
