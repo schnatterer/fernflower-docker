@@ -6,7 +6,7 @@ Builds docker images for [fesh0r/fernflower](https://github.com/fesh0r/fernflowe
 ## Development
 
 * `hooks/build` is picked up and executed by docker cloud build.
-* Try locally: `hooks/build`
+* Try locally: `SKIP_PUSH=true hooks/build`
  
 #todo 
 FROM adoptopenjdk/openjdk8:jre

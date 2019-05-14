@@ -50,14 +50,22 @@ function build() {
         --tag ${IMAGE_NAME}:${TAG}-${GIT_SHA1_SHORT} \
         .
 
-     docker push ${IMAGE_NAME}:${TAG}-${GIT_SHA1_SHORT}
+    push "${IMAGE_NAME}:${TAG}-${GIT_SHA1_SHORT}"
 }
 
 function tag() {
    local SRC="$1"
    local TARGET="$2"
    docker tag ${IMAGE_NAME}:${SRC}-${GIT_SHA1_SHORT} ${IMAGE_NAME}:${TARGET}
-   docker push ${IMAGE_NAME}:${TARGET}
+   push "${IMAGE_NAME}:${TARGET}"
+}
+
+function push() {
+    if [ "${SKIP_PUSH}" = true ] ; then
+        echo "Skipping push, because SKIP_PUSH set to true"
+    else
+        docker push "$1"
+    fi
 }
 
 main "$@"
