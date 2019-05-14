@@ -1,6 +1,9 @@
 #!/bin/bash
 set -ex
 
+# Don't use docker cloud build's IMAGE_NAME, because it already contains the tag latest.
+IMAGE_NAME=schnatterer/fernflower
+
 git clean -fd
 git clone https://github.com/fesh0r/fernflower
 
