@@ -1,13 +1,11 @@
 
 script:
- - chmod +x hooks/build
- - chmod +x test/smoketest.sh
-
-# Simple smoke test for all images before triggering docker hub
-# We could as well push our images from here to DockerHub?!
+  # Simple smoke test for all images before triggering docker hub
  - SKIP_PUSH=true hooks/build
  - test/smoketest.sh schnatterer/fernflower:native
  - test/smoketest.sh schnatterer/fernflower:jre
  - test/smoketest.sh schnatterer/fernflower:alpine-jre
  - test/smoketest.sh schnatterer/fernflower:distroless
+  # We could push our images from here to DockerHub. However, this would require to store credentials.
+  # Triggering a build in DockerHub is more secure.
  - curl -X POST ${DOCKER_HUB_TRIGGER_URL}
