@@ -1,4 +1,4 @@
-FROM oracle/graalvm-ce:19.0.0 AS native-image
+FROM oracle/graalvm-ce:19.0.2 AS native-image
 COPY . /app
 WORKDIR /app
 RUN chmod +x gradlew
